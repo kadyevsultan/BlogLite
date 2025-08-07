@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.sqlite3
+*.log
+*.pot
+*.mo
+*.pyc
+
+# Env & secrets
+.env
+.env.*
+*.env
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+db.sqlite3
+
+
+# Docker
+*.pid
+*.tar
+*.sock
+*.db
+*.log
+*.pid
+*.gz
+*.img
+docker-compose.override.yml
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Migrations (по желанию — можно коммитить при стабилизации схемы)
+**/migrations/__pycache__/
+**/migrations/*.pyc
+# **/migrations/ — ❗️если ты не хочешь коммитить миграции (для теста)
+
+# Coverage / test
+.coverage
+htmlcov/
+coverage.xml
+.pytest_cache/
+.tox/
+nosetests.xml
+test-results/
+junit.xml
+
+# Build
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# OS
+.DS_Store
+Thumbs.db
