@@ -59,7 +59,7 @@ class PostSerializer(serializers.ModelSerializer):
             "views_count",
         )
 
-    def get_likes_count(self, obj):
+    def get_likes_count(self, obj) -> int:
         return obj.likes.count()
 
     @transaction.atomic
