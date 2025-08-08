@@ -18,7 +18,7 @@ class PostViewSet(viewsets.ModelViewSet):
     Включает вложенные SubPost-ы (только для чтения).
     """
 
-    queryset = Post.objects.all()
+    queryset = Post.objects.all().order_by("-created_at")
     serializer_class = PostSerializer
 
     def create(self, request, *args, **kwargs):

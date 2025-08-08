@@ -25,6 +25,7 @@ class TestSubPosts:
         self.post_id = self.post_resp.data["id"]
         self.subposts = self.post_resp.data["subposts"]
 
+    # Create
     def test_add_subpost_to_existing_post(self):
         # Добавляем новый subpost к существующему посту
         patch_data = {
@@ -45,6 +46,7 @@ class TestSubPosts:
         assert post_obj.subposts.count() == 3
         assert post_obj.subposts.filter(title="Sub 3").exists()
 
+    # Update
     def test_edit_subpost(self):
         sub_id = self.subposts[0]["id"]
         patch_data = {
@@ -65,6 +67,20 @@ class TestSubPosts:
         assert db_sub.title == "Edited title"
         assert db_sub.body == "Edited body"
 
+    def test_update_nonexistent_subpost(self):
+        patch_data = {
+            "subposts": [
+                {"id": 999999, "title": "NoSuch", "body": "Should fail"},
+                {"id": self.subposts[1]["id"], "title": "Sub 2", "body": "Body 2"},
+            ]
+        }
+        resp = self.client.patch(
+            f"/api/posts/{self.post_id}/", patch_data, format="json"
+        )
+        assert resp.status_code == 400
+        assert "not found" in str(resp.data).lower()
+
+    # Delete
     def test_delete_subpost(self):
         # Удаляем первый subpost (не передаем его id)
         patch_data = {
@@ -81,19 +97,7 @@ class TestSubPosts:
         assert post_obj.subposts.count() == 1
         assert not post_obj.subposts.filter(id=self.subposts[0]["id"]).exists()
 
-    def test_update_nonexistent_subpost(self):
-        patch_data = {
-            "subposts": [
-                {"id": 999999, "title": "NoSuch", "body": "Should fail"},
-                {"id": self.subposts[1]["id"], "title": "Sub 2", "body": "Body 2"},
-            ]
-        }
-        resp = self.client.patch(
-            f"/api/posts/{self.post_id}/", patch_data, format="json"
-        )
-        assert resp.status_code == 400
-        assert "not found" in str(resp.data).lower()
-
+    # Get
     def test_subposts_readonly_in_get(self):
         resp = self.client.get(f"/api/posts/{self.post_id}/")
         assert resp.status_code == 200

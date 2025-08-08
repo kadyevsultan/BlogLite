@@ -13,6 +13,7 @@ class TestPosts:
         self.client = APIClient()
         self.client.force_authenticate(self.user)
 
+    # Creation
     def test_bulk_create_posts(self):
         posts_data = [
             {"title": "Bulk 1", "body": "Body 1"},
@@ -85,3 +86,51 @@ class TestPosts:
         # Проверим, что автор — текущий пользователь
         for post in resp.data:
             assert post["author"] == self.user.id
+
+    # Update
+    def test_update_post(self):
+        # Создаём пост
+        post_data = {"title": "Old Title", "body": "Old body"}
+        resp = self.client.post("/api/posts/", post_data, format="json")
+        post_id = resp.data["id"]
+
+        # Обновляем пост
+        patch_data = {"title": "New Title", "body": "New body"}
+        resp = self.client.patch(f"/api/posts/{post_id}/", patch_data, format="json")
+        assert resp.status_code == 200
+        assert resp.data["title"] == "New Title"
+        assert resp.data["body"] == "New body"
+
+    # Delete
+    def test_delete_post(self):
+        post_data = {"title": "Delete me", "body": "Body"}
+        resp = self.client.post("/api/posts/", post_data, format="json")
+        post_id = resp.data["id"]
+
+        resp = self.client.delete(f"/api/posts/{post_id}/")
+        assert resp.status_code == 204
+        # Проверяем, что поста нет
+        from blog.models import Post
+
+        assert not Post.objects.filter(id=post_id).exists()
+
+    # Get
+    def test_get_post(self):
+        post_data = {"title": "Get me", "body": "Body"}
+        resp = self.client.post("/api/posts/", post_data, format="json")
+        post_id = resp.data["id"]
+
+        resp = self.client.get(f"/api/posts/{post_id}/")
+        assert resp.status_code == 200
+        assert resp.data["title"] == "Get me"
+
+    def test_get_posts_list(self):
+        self.client.post("/api/posts/", {"title": "A", "body": "A"}, format="json")
+        self.client.post("/api/posts/", {"title": "B", "body": "B"}, format="json")
+        resp = self.client.get("/api/posts/")
+        assert resp.status_code == 200
+        # Проверяем, что это пагинация
+        assert isinstance(resp.data, dict)
+        assert "results" in resp.data
+        assert isinstance(resp.data["results"], list)
+        assert len(resp.data["results"]) >= 2
