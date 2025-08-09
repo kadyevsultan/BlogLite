@@ -113,7 +113,7 @@ REST_FRAMEWORK = {
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Blog Lite API",
-    "DESCRIPTION": "API проекта блога Blog Lite",
+    "DESCRIPTION": "API Blog Lite",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "SECURITY": [{"BearerAuth": []}],
