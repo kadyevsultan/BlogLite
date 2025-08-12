@@ -30,29 +30,8 @@ class PostViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(data=data, many=is_many)
         serializer.is_valid(raise_exception=True)
-
-        if is_many:
-            instances = []
-            subposts_map = []
-            for item in serializer.validated_data:
-                subposts = item.pop("subposts", [])
-                post = Post(author=request.user, **item)
-                instances.append(post)
-                subposts_map.append(subposts)
-
-            Post.objects.bulk_create(instances)
-
-            bulk_subposts = []
-            for post, subposts in zip(instances, subposts_map):
-                for subpost_data in subposts:
-                    bulk_subposts.append(SubPost(post=post, **subpost_data))
-            SubPost.objects.bulk_create(bulk_subposts)
-
-            response_serializer = self.get_serializer(instances, many=True)
-            return Response(response_serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            self.perform_create(serializer)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

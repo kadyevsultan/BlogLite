@@ -64,11 +64,30 @@ class PostSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
+        if isinstance(validated_data, list):
+            instances = []
+            subposts_map = []
+
+            for item in validated_data:
+                subposts = item.pop("subposts", [])
+                post = Post(**item)
+                instances.append(post)
+                subposts_map.append(subposts)
+            Post.objects.bulk_create(instances)
+
+            bulk_subposts = []
+            for post, subposts in zip(instances, subposts_map):
+                for subpost in subposts:
+                    bulk_subposts.append(SubPost(post=post, **subpost))
+            SubPost.objects.bulk_create(bulk_subposts)
+
+            return instances
+
         subposts_data = validated_data.pop("subposts", [])
         post = Post.objects.create(**validated_data)
         for subpost_data in subposts_data:
-            subpost_data.pop("id", None)
             SubPost.objects.create(post=post, **subpost_data)
+
         return post
 
     @transaction.atomic
